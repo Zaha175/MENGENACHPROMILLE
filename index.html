@@ -222,7 +222,14 @@
             <div class="form-group">
                 <label for="targetBak">Erreichte Promille? Wie hoch war die Promille?</label>
                 <div class="input-group">
-                    <input type="number" id="targetBak" required min="0" step="0.1">
+                    <input 
+                        type="number" 
+                        id="targetBak" 
+                        required 
+                        min="0" 
+                        max="5.00" 
+                        step="0.01"
+                        placeholder="z.B. 1.85">
                     <span class="unit">‰</span>
                 </div>
             </div>
@@ -269,7 +276,28 @@
             };
         }
 
+        const targetBakInput = document.getElementById('targetBak');
+
+        // Validierung bei Eingabe
+        targetBakInput.addEventListener('input', function () {
+            const value = parseFloat(targetBakInput.value);
+
+            if (isNaN(value) || value < 0.01 || value > 5.00) {
+                targetBakInput.setCustomValidity('Bitte geben Sie einen gültigen Wert zwischen 0,01 und 5,00 ein, z.B. 1,85.');
+            } else {
+                targetBakInput.setCustomValidity('');
+            }
+        });
+
         document.getElementById('alcoholForm').addEventListener('submit', function(event) {
+            const targetBak = parseFloat(targetBakInput.value);
+
+            if (isNaN(targetBak) || targetBak < 0.01 || targetBak > 5.00) {
+                event.preventDefault();
+                targetBakInput.reportValidity();
+                return;
+            }
+
             event.preventDefault(); // Verhindert das Neuladen der Seite
 
             // Formulardaten auslesen
@@ -277,7 +305,6 @@
             const height = parseFloat(document.getElementById('height').value);
             const gender = document.getElementById('gender').value;
             const duration = parseFloat(document.getElementById('duration').value);
-            const targetBak = parseFloat(document.getElementById('targetBak').value);
 
             // Verteilungsfaktor berechnen
             const distributionFactor = calculateDistributionFactor(weight, height, gender);
